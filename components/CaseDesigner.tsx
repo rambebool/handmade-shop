@@ -2,7 +2,13 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { PhoneModel, DesignLayer } from "@/lib/types";
-import { phoneModels, caseColors, brandGroups } from "@/lib/phone-models";
+import {
+  phoneModels,
+  caseColors,
+  caseMaterials,
+  brandGroups,
+  UNIVERSAL_MODEL,
+} from "@/lib/phone-models";
 
 const CANVAS_W = 300;
 const CANVAS_H = 600;
@@ -112,11 +118,20 @@ function drawCamera(
   ctx.restore();
 }
 
+function randomHex(): string {
+  const h = Math.floor(Math.random() * 360);
+  const s = 60 + Math.floor(Math.random() * 30);
+  const l = 45 + Math.floor(Math.random() * 25);
+  return `hsl(${h}, ${s}%, ${l}%)`;
+}
+
 export default function CaseDesigner() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [selectedModel, setSelectedModel] = useState<PhoneModel | null>(null);
   const [caseColorId, setCaseColorId] = useState("white");
+  const [customRandomColor, setCustomRandomColor] = useState<string | null>(null);
+  const [caseMaterialId, setCaseMaterialId] = useState("silicone");
   const [layers, setLayers] = useState<DesignLayer[]>([]);
   const [activeLayerId, setActiveLayerId] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -127,11 +142,15 @@ export default function CaseDesigner() {
   const [textSize, setTextSize] = useState(24);
   const [externalLink, setExternalLink] = useState("");
   const [sendOwnCase, setSendOwnCase] = useState(false);
-
   const [loadedImages, setLoadedImages] = useState<Record<string, HTMLImageElement>>({});
   const [message, setMessage] = useState("");
 
   const caseColor = caseColors.find((c) => c.id === caseColorId) || caseColors[0];
+  const caseMaterial = caseMaterials.find((m) => m.id === caseMaterialId) || caseMaterials[0];
+
+  const effectiveColorHex = customRandomColor || caseColor.hex;
+  const effectiveAlpha = customRandomColor ? 1 : caseColor.alpha;
+  const effectiveColorName = customRandomColor ? `Рандомный (${customRandomColor})` : caseColor.name;
 
   const drawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -164,7 +183,7 @@ export default function CaseDesigner() {
     drawRoundedRect(ctx, x, y, w, h, r);
     ctx.clip();
 
-    if (caseColor.alpha < 1) {
+    if (effectiveAlpha < 1) {
       const sz = 10;
       for (let i = 0; i < w / sz + 1; i++) {
         for (let j = 0; j < h / sz + 1; j++) {
@@ -172,9 +191,9 @@ export default function CaseDesigner() {
           ctx.fillRect(x + i * sz, y + j * sz, sz, sz);
         }
       }
-      ctx.fillStyle = `rgba(255,255,255,${caseColor.alpha})`;
+      ctx.fillStyle = `rgba(255,255,255,${effectiveAlpha})`;
     } else {
-      ctx.fillStyle = caseColor.hex;
+      ctx.fillStyle = effectiveColorHex;
     }
     ctx.fillRect(x, y, w, h);
 
@@ -220,7 +239,7 @@ export default function CaseDesigner() {
         ctx.restore();
       }
     }
-  }, [selectedModel, caseColor, layers, activeLayerId, loadedImages]);
+  }, [selectedModel, effectiveColorHex, effectiveAlpha, layers, activeLayerId, loadedImages]);
 
   useEffect(() => {
     drawCanvas();
@@ -376,11 +395,34 @@ export default function CaseDesigner() {
     });
   };
 
+  const handleModelSelect = (value: string) => {
+    if (value === "universal") {
+      setSelectedModel(UNIVERSAL_MODEL);
+    } else {
+      const m = phoneModels.find((p) => p.id === value) || null;
+      setSelectedModel(m);
+    }
+    setLayers([]);
+    setActiveLayerId(null);
+  };
+
+  const handleLucky = () => {
+    const color = randomHex();
+    setCustomRandomColor(color);
+    setCaseColorId("__random__");
+  };
+
+  const handleColorSelect = (id: string) => {
+    setCaseColorId(id);
+    setCustomRandomColor(null);
+  };
+
   const handleOrder = () => {
     if (!selectedModel) return;
     const parts = [
       `Модель: ${selectedModel.brand} ${selectedModel.name}`,
-      `Цвет чехла: ${caseColor.name}`,
+      `Материал: ${caseMaterial.name}`,
+      `Цвет чехла: ${effectiveColorName}`,
       `Слоёв дизайна: ${layers.length}`,
     ];
     if (externalLink) parts.push(`Ссылка на чехол: ${externalLink}`);
@@ -415,12 +457,7 @@ export default function CaseDesigner() {
             </h2>
             <select
               value={selectedModel?.id || ""}
-              onChange={(e) => {
-                const m = phoneModels.find((p) => p.id === e.target.value) || null;
-                setSelectedModel(m);
-                setLayers([]);
-                setActiveLayerId(null);
-              }}
+              onChange={(e) => handleModelSelect(e.target.value)}
               className="w-full border-2 border-black/80 bg-white px-3 py-2 font-mono text-sm"
             >
               <option value="">— Выбрать модель —</option>
@@ -433,45 +470,97 @@ export default function CaseDesigner() {
                   ))}
                 </optgroup>
               ))}
+              <optgroup label="———">
+                <option value="universal">Моего телефона нет в списке (универсальный макет)</option>
+              </optgroup>
             </select>
+            {selectedModel?.id === "universal" && (
+              <p className="mt-2 border-l-4 border-[#FF4D00] pl-2 font-mono text-xs text-gray-500">
+                Используется универсальный макет. Укажите модель в комментарии при оформлении — мы подберём нужный размер.
+              </p>
+            )}
           </div>
 
           {selectedModel && (
             <>
+              {/* Case material */}
+              <div className="border-2 border-black/80 bg-white p-4 shadow-[4px_4px_0px_#F4F1EA]">
+                <h2 className="mb-3 font-mono text-xs font-bold uppercase tracking-widest text-gray-500">
+                  2. Материал чехла
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {caseMaterials.map((mat) => (
+                    <button
+                      key={mat.id}
+                      onClick={() => setCaseMaterialId(mat.id)}
+                      className={`border-2 px-3 py-1.5 font-mono text-xs transition-all ${
+                        caseMaterialId === mat.id
+                          ? "border-[#FF4D00] bg-[#FF4D00] text-white shadow-[2px_2px_0px_#1A1A1A]"
+                          : "border-black/40 bg-white text-[#1A1A1A] hover:border-black/80"
+                      }`}
+                    >
+                      {mat.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Case color */}
               <div className="border-2 border-black/80 bg-white p-4 shadow-[4px_4px_0px_#F4F1EA]">
                 <h2 className="mb-3 font-mono text-xs font-bold uppercase tracking-widest text-gray-500">
-                  2. Цвет чехла
+                  3. Цвет чехла
                 </h2>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {caseColors.map((c) => (
                     <button
                       key={c.id}
-                      onClick={() => setCaseColorId(c.id)}
+                      onClick={() => handleColorSelect(c.id)}
                       title={c.name}
                       className={`h-8 w-8 border-2 transition-all ${
-                        caseColorId === c.id
+                        caseColorId === c.id && !customRandomColor
                           ? "border-[#FF4D00] shadow-[2px_2px_0px_#FF4D00] scale-110"
                           : "border-black/40 hover:border-black/80"
                       }`}
                       style={{
                         background:
-                          c.alpha < 1
-                            ? "repeating-conic-gradient(#ddd 0% 25%, #fff 0% 50%) 50%/16px 16px"
-                            : c.hex,
+                          c.id === "unknown"
+                            ? "linear-gradient(135deg, #ccc 25%, #999 75%)"
+                            : c.alpha < 1
+                              ? "repeating-conic-gradient(#ddd 0% 25%, #fff 0% 50%) 50%/16px 16px"
+                              : c.hex,
                       }}
                     />
                   ))}
+                  <button
+                    onClick={handleLucky}
+                    title="Мне повезёт! (рандомный цвет)"
+                    className={`flex h-8 items-center gap-1 border-2 px-2 font-mono text-xs font-bold transition-all ${
+                      customRandomColor
+                        ? "border-[#FF4D00] shadow-[2px_2px_0px_#FF4D00]"
+                        : "border-black/40 hover:border-black/80"
+                    }`}
+                    style={customRandomColor ? { background: customRandomColor, color: "#fff" } : {}}
+                  >
+                    🎲
+                  </button>
                 </div>
                 <p className="mt-1 font-mono text-xs text-gray-400">
-                  {caseColor.name}
+                  {effectiveColorName}
+                  {customRandomColor && (
+                    <button
+                      onClick={handleLucky}
+                      className="ml-2 underline hover:text-[#FF4D00]"
+                    >
+                      ещё раз!
+                    </button>
+                  )}
                 </p>
               </div>
 
               {/* Image upload */}
               <div className="border-2 border-black/80 bg-white p-4 shadow-[4px_4px_0px_#F4F1EA]">
                 <h2 className="mb-3 font-mono text-xs font-bold uppercase tracking-widest text-gray-500">
-                  3. Загрузи изображение
+                  4. Загрузи изображение
                 </h2>
                 <input
                   ref={fileRef}
@@ -487,15 +576,15 @@ export default function CaseDesigner() {
                   Загрузить .png / .jpeg
                 </button>
                 <p className="mt-2 font-mono text-xs text-gray-400">
-                  Перетащите изображение на чехле для позиционирования.
-                  Тяните за угол для масштабирования.
+                  Можно загрузить несколько изображений.
+                  Перетаскивайте для позиционирования, тяните за угол для масштабирования.
                 </p>
               </div>
 
               {/* Text tool */}
               <div className="border-2 border-black/80 bg-white p-4 shadow-[4px_4px_0px_#F4F1EA]">
                 <h2 className="mb-3 font-mono text-xs font-bold uppercase tracking-widest text-gray-500">
-                  4. Добавить текст
+                  5. Добавить текст
                 </h2>
                 <div className="flex gap-2">
                   <input
@@ -535,6 +624,9 @@ export default function CaseDesigner() {
                     className="h-6 w-6 cursor-pointer border-2 border-black/80"
                   />
                 </div>
+                <p className="mt-1 font-mono text-xs text-gray-400">
+                  Можно добавить несколько надписей. Каждая — отдельный слой.
+                </p>
               </div>
 
               {/* Layers list */}
