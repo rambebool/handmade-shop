@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { login, register } from "@/lib/auth";
@@ -16,10 +16,13 @@ export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
 
-  if (user) {
-    router.push("/profile");
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      router.push("/profile");
+    }
+  }, [user, router]);
+
+  if (user) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -5,6 +5,7 @@ import { Product } from "@/lib/types";
 import { getAllProducts } from "@/lib/store";
 import ProductCard from "@/components/ProductCard";
 import AdBanner from "@/components/AdBanner";
+import PageBlocks from "@/components/PageBlocks";
 import mockProductsRaw from "@/lib/mock-products.json";
 
 const mockProductsTyped = mockProductsRaw as Product[];
@@ -88,6 +89,7 @@ export default function CatalogPage() {
       </div>
 
       <AdBanner placement="catalog-top" />
+      <PageBlocks pageId="catalog-top" />
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {visible.map((product) => (
@@ -113,6 +115,10 @@ export default function CatalogPage() {
           </p>
         </div>
       )}
+
+      <div className="mt-8">
+        <PageBlocks pageId="catalog-bottom" />
+      </div>
     </div>
   );
 }

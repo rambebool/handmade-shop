@@ -1,6 +1,6 @@
 "use client";
 
-import { Product, CartItem, Order, Review, Question, AdBlock, SiteSettings, Category } from "./types";
+import { Product, CartItem, Order, Review, Question, AdBlock, SiteSettings, Category, PageLayout, PageBlock } from "./types";
 
 const CART_KEY = "handmade-shop-cart";
 const ADMIN_PRODUCTS_KEY = "handmade-shop-admin-products";
@@ -10,6 +10,7 @@ const QUESTIONS_KEY = "handmade-shop-questions";
 const ADS_KEY = "handmade-shop-ads";
 const SETTINGS_KEY = "handmade-shop-settings";
 const CATEGORIES_KEY = "handmade-shop-categories";
+const PAGE_LAYOUTS_KEY = "handmade-shop-page-layouts";
 
 const DEFAULT_CATEGORIES: Category[] = [
   { id: "cat-1", name: "Керамика", order: 0 },
@@ -333,4 +334,53 @@ export function getSiteSettings(): SiteSettings {
 export function saveSiteSettings(settings: SiteSettings): void {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   window.dispatchEvent(new Event("settings-update"));
+}
+
+// ─── Page Layouts (Block Editor) ────────────────────
+
+const AVAILABLE_PAGES = [
+  { id: "home-top", label: "Главная — верх (после баннера)" },
+  { id: "home-bottom", label: "Главная — низ (после товаров)" },
+  { id: "catalog-top", label: "Каталог — верх" },
+  { id: "catalog-bottom", label: "Каталог — низ" },
+  { id: "custom-1", label: "Доп. секция 1" },
+  { id: "custom-2", label: "Доп. секция 2" },
+];
+
+export { AVAILABLE_PAGES };
+
+function getAllLayouts(): PageLayout[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(PAGE_LAYOUTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveAllLayouts(layouts: PageLayout[]): void {
+  localStorage.setItem(PAGE_LAYOUTS_KEY, JSON.stringify(layouts));
+  window.dispatchEvent(new Event("layout-update"));
+}
+
+export function getPageLayout(pageId: string): PageBlock[] {
+  const layouts = getAllLayouts();
+  const found = layouts.find((l) => l.pageId === pageId);
+  return found ? found.blocks : [];
+}
+
+export function savePageLayout(pageId: string, blocks: PageBlock[]): void {
+  const layouts = getAllLayouts();
+  const idx = layouts.findIndex((l) => l.pageId === pageId);
+  if (idx >= 0) {
+    layouts[idx].blocks = blocks;
+  } else {
+    layouts.push({ pageId, blocks });
+  }
+  saveAllLayouts(layouts);
+}
+
+export function getPageLayouts(): PageLayout[] {
+  return getAllLayouts();
 }

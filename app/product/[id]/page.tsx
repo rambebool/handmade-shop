@@ -8,6 +8,7 @@ import { Product } from "@/lib/types";
 import { getAllProducts, addToCart } from "@/lib/store";
 import mockProductsRaw from "@/lib/mock-products.json";
 import ReviewSection from "@/components/ReviewSection";
+import AdBanner from "@/components/AdBanner";
 
 const mockProducts = mockProductsRaw as Product[];
 const SERVER_SNAPSHOT = mockProducts;
@@ -162,6 +163,10 @@ export default function ProductPage() {
       </div>
 
       <ReviewSection productId={product.id} />
+
+      <div className="mt-8">
+        <AdBanner placement="product-bottom" />
+      </div>
     </div>
   );
 }

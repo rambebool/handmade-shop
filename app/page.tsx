@@ -1,10 +1,18 @@
 import HeroBanner from "@/components/HeroBanner";
 import BentoGridHome from "./BentoGridHome";
+import AdBanner from "@/components/AdBanner";
+import PageBlocks from "@/components/PageBlocks";
 
 export default function Home() {
   return (
     <>
       <HeroBanner />
+      <div className="mx-auto max-w-7xl px-4 pt-4 md:px-8">
+        <AdBanner placement="home-banner" />
+      </div>
+      <div className="mx-auto max-w-7xl px-4 py-4 md:px-8">
+        <PageBlocks pageId="home-top" />
+      </div>
       <section className="mx-auto max-w-7xl px-4 py-10 md:px-8 md:py-16">
         <div className="mb-8 flex items-end justify-between">
           <div>
@@ -24,6 +32,9 @@ export default function Home() {
         </div>
         <BentoGridHome />
       </section>
+      <div className="mx-auto max-w-7xl px-4 pb-8 md:px-8">
+        <PageBlocks pageId="home-bottom" />
+      </div>
     </>
   );
 }

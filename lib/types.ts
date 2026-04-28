@@ -130,3 +130,25 @@ export interface CaseDesign {
   externalLink: string;
   sendOwnCase: boolean;
 }
+
+export type PageBlockType =
+  | "heading"
+  | "text"
+  | "image"
+  | "banner"
+  | "divider"
+  | "spacer"
+  | "html"
+  | "columns"
+  | "button";
+
+export interface PageBlock {
+  id: string;
+  type: PageBlockType;
+  props: Record<string, string>;
+}
+
+export interface PageLayout {
+  pageId: string;
+  blocks: PageBlock[];
+}

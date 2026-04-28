@@ -9,12 +9,14 @@ import AdminCategories from "@/components/AdminCategories";
 import AdminAds from "@/components/AdminAds";
 import AdminSettings from "@/components/AdminSettings";
 import AdminStats from "@/components/AdminStats";
+import AdminBlockEditor from "@/components/AdminBlockEditor";
 
-type AdminTab = "products" | "categories" | "users" | "ads" | "settings" | "stats";
+type AdminTab = "products" | "categories" | "users" | "ads" | "settings" | "stats" | "blocks";
 
 const TABS: { id: AdminTab; label: string; minRole: "moderator" | "admin" }[] = [
   { id: "products", label: "Товары", minRole: "moderator" },
   { id: "categories", label: "Категории", minRole: "moderator" },
+  { id: "blocks", label: "Конструктор", minRole: "admin" },
   { id: "users", label: "Пользователи", minRole: "admin" },
   { id: "ads", label: "Реклама", minRole: "admin" },
   { id: "settings", label: "Настройки", minRole: "admin" },
@@ -73,6 +75,7 @@ export default function AdminPage() {
       {/* Tab content */}
       {tab === "products" && <AdminForm />}
       {tab === "categories" && <AdminCategories />}
+      {tab === "blocks" && user.role === "admin" && <AdminBlockEditor />}
       {tab === "users" && user.role === "admin" && <AdminUsers />}
       {tab === "ads" && user.role === "admin" && <AdminAds />}
       {tab === "settings" && user.role === "admin" && <AdminSettings />}
