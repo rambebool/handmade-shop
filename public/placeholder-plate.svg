@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <rect width="600" height="600" fill="#EC4899" opacity="0.15"/>
+  <rect x="150" y="150" width="300" height="300" rx="20" fill="#EC4899" opacity="0.3"/>
+  <text x="300" y="310" text-anchor="middle" font-family="monospace" font-size="28" font-weight="bold" fill="#EC4899">Тарелка</text>
+</svg>

@@ -1,36 +1,185 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HANDMADE.SHOP — Интернет-магазин изделий ручной работы
 
-## Getting Started
+Минимальная, визуально готовая и полностью функциональная база интернет-магазина изделий ручной работы.
 
-First, run the development server:
+**Стек:** Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · React Hooks · localStorage
+
+**Дизайн:** Brutalist Bento Grid — видимые границы, резкие тени, моноширинные шрифты, яркие акценты.
+
+---
+
+## Быстрый старт
+
+### Требования
+
+- **Node.js 18+** — [скачать](https://nodejs.org/en/download)
+- **npm** — устанавливается вместе с Node.js
+
+### Автоматический запуск (рекомендуется)
+
+#### Windows 11
+
+1. Скачайте или клонируйте репозиторий
+2. Откройте папку проекта в Проводнике
+3. Дважды кликните на файл `scripts/setup-win.bat`
+4. Дождитесь установки зависимостей
+5. Откройте в браузере: **http://localhost:3000**
+
+#### Linux / macOS
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <url-этого-репозитория>
+cd handmade-shop
+bash scripts/setup-linux.sh
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Ручной запуск
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# 1. Клонируйте репозиторий
+git clone <url-этого-репозитория>
+cd handmade-shop
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# 2. Установите зависимости
+npm install
 
-## Learn More
+# 3. Запустите dev-сервер
+npm run dev
 
-To learn more about Next.js, take a look at the following resources:
+# 4. Откройте в браузере
+# http://localhost:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Остановка сервера
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Нажмите `Ctrl + C` в терминале, где запущен сервер.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Структура проекта
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+handmade-shop/
+├── app/
+│   ├── layout.tsx          # Корневой layout (Header + Footer)
+│   ├── page.tsx            # Главная страница
+│   ├── BentoGridHome.tsx   # Client-компонент главной
+│   ├── globals.css         # Глобальные стили + Tailwind
+│   ├── catalog/
+│   │   └── page.tsx        # Каталог с фильтрами
+│   ├── product/[id]/
+│   │   └── page.tsx        # Страница товара
+│   ├── cart/
+│   │   └── page.tsx        # Корзина
+│   └── admin/
+│       └── page.tsx        # Админка
+├── components/
+│   ├── Header.tsx          # Шапка с навигацией
+│   ├── Footer.tsx          # Подвал
+│   ├── HeroBanner.tsx      # Баннер на главной
+│   ├── ProductCard.tsx     # Карточка товара
+│   ├── BentoGrid.tsx       # Bento-сетка
+│   ├── CartDrawer.tsx      # Содержимое корзины
+│   └── AdminForm.tsx       # Форма админки
+├── lib/
+│   ├── types.ts            # TypeScript-типы
+│   ├── mock-products.json  # Мок-данные (12 товаров)
+│   └── store.ts            # Логика корзины и админки (localStorage)
+├── public/
+│   └── placeholder-*.svg   # SVG-плейсхолдеры изображений
+├── scripts/
+│   ├── setup-win.bat       # Автозапуск для Windows
+│   └── setup-linux.sh      # Автозапуск для Linux/macOS
+└── README.md
+```
+
+---
+
+## Функционал
+
+### Главная (`/`)
+- Яркий баннер с акцией и промокодом
+- Кнопка «В каталог»
+- Превью 6 популярных товаров в Bento Grid
+
+### Каталог (`/catalog`)
+- Сетка карточек товаров
+- Фильтр по категориям: Керамика, Дерево, Текстиль, Свечи, Кожа
+- Кнопка «Загрузить ещё» (пагинация по 8 товаров)
+- Счётчик товаров
+
+### Страница товара (`/product/[id]`)
+- Изображение товара
+- Описание и характеристики (список)
+- Цена и статус наличия
+- Кнопка «В корзину» с анимацией подтверждения
+- Хлебные крошки
+
+### Корзина (`/cart`)
+- Список товаров с изображениями
+- Изменение количества (+/−)
+- Удаление товаров
+- Подсчёт итоговой суммы
+- Кнопка «Оформить заказ» (заглушка с alert)
+- Данные сохраняются в localStorage
+
+### Админка (`/admin`)
+- Форма добавления нового товара
+- Редактирование существующего товара
+- Удаление товара
+- Поля: название, цена, категория, бейдж, описание, характеристики, изображение, статус наличия
+- Данные хранятся в localStorage
+- Добавленные товары появляются в каталоге
+
+---
+
+## Как проверить
+
+### Каталог
+1. Откройте http://localhost:3000/catalog
+2. Попробуйте переключить категории
+3. Нажмите «Загрузить ещё» (если товаров > 8)
+4. Кликните на карточку — откроется страница товара
+
+### Корзина
+1. Нажмите «В корзину» на любой карточке или странице товара
+2. Перейдите на http://localhost:3000/cart
+3. Измените количество кнопками +/−
+4. Удалите товар
+5. Нажмите «Оформить заказ» — появится alert с суммой
+
+### Админка
+1. Откройте http://localhost:3000/admin
+2. Заполните форму и нажмите «Добавить»
+3. Товар появится в списке ниже и в каталоге
+4. Нажмите «Ред.» для редактирования
+5. Нажмите «Удалить» для удаления
+
+---
+
+## Дизайн
+
+- **Bento Grid** — адаптивная сетка с разными размерами ячеек
+- **Брутализм** — `border-2 border-black/80`, резкие тени (`shadow-[4px_4px_0px_...]`), моноширинные шрифты
+- **Цвета**: `#FF4D00` (оранжевый), `#00E5FF` (циан), `#1A1A1A` (чёрный), `#F4F1EA` (крем)
+- **Адаптив**: мобильные (1 колонка) → планшеты (2 колонки) → десктоп (3-4 колонки)
+
+---
+
+## Технические решения
+
+| Задача | Решение |
+|--------|---------|
+| Роутинг | Next.js App Router (file-system) |
+| Стили | Tailwind CSS v4 (utility-first) |
+| Состояние корзины | localStorage + custom event `cart-update` |
+| Состояние админки | localStorage |
+| Мок-данные | JSON-файл (легко заменить на API/БД) |
+| Изображения | SVG-плейсхолдеры в `/public` |
+| Типизация | TypeScript strict mode |
+
+---
+
+## Лицензия
+
+MIT
