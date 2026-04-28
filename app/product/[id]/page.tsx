@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Product } from "@/lib/types";
 import { getAllProducts, addToCart } from "@/lib/store";
 import mockProductsRaw from "@/lib/mock-products.json";
+import ReviewSection from "@/components/ReviewSection";
 
 const mockProducts = mockProductsRaw as Product[];
 const SERVER_SNAPSHOT = mockProducts;
@@ -159,6 +160,8 @@ export default function ProductPage() {
           </button>
         </div>
       </div>
+
+      <ReviewSection productId={product.id} />
     </div>
   );
 }

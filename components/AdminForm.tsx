@@ -6,15 +6,14 @@ import {
   getAdminProducts,
   saveAdminProduct,
   deleteAdminProduct,
+  getCategories,
 } from "@/lib/store";
-
-const CATEGORIES = ["Керамика", "Дерево", "Текстиль", "Свечи", "Кожа"];
 
 const emptyProduct: Product = {
   id: "",
   name: "",
   price: 0,
-  category: CATEGORIES[0],
+  category: "Керамика",
   specs: [],
   image: "/placeholder-mug.svg",
   badge: "",
@@ -66,6 +65,7 @@ export default function AdminForm() {
   const [specsText, setSpecsText] = useState("");
   const [editing, setEditing] = useState(false);
   const [message, setMessage] = useState("");
+  const [categories] = useState<string[]>(() => getCategories().map((c) => c.name));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,7 +170,7 @@ export default function AdminForm() {
               onChange={(e) => setForm({ ...form, category: e.target.value })}
               className="w-full border-2 border-black/80 bg-[#F4F1EA] px-3 py-2 font-mono text-sm outline-none focus:shadow-[3px_3px_0px_#FF4D00]"
             >
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>

@@ -9,7 +9,10 @@ import {
   updateQuantity,
   removeFromCart,
   cartTotal,
+  clearCart,
+  createOrder,
 } from "@/lib/store";
+import { useAuth } from "@/components/AuthProvider";
 
 function subscribe(cb: () => void) {
   window.addEventListener("cart-update", cb);
@@ -41,6 +44,7 @@ function getServerSnapshot(): CartItem[] {
 
 export default function CartDrawer() {
   const items = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const { user } = useAuth();
 
   const handleQuantity = useCallback((id: string, qty: number) => {
     updateQuantity(id, qty);
@@ -145,8 +149,14 @@ export default function CartDrawer() {
         </div>
         <button
           onClick={() => {
+            const total = cartTotal(items);
+            if (user) {
+              createOrder(user.id, items, total);
+            }
+            clearCart();
+            window.dispatchEvent(new Event("cart-update"));
             alert(
-              `Заказ оформлен! Сумма: ${cartTotal(items).toLocaleString("ru-RU")} ₽\n\nЭто заглушка — реальная оплата не подключена.`
+              `Заказ оформлен! Сумма: ${total.toLocaleString("ru-RU")} ₽${user ? "\n\nЗаказ сохранён в вашем профиле." : "\n\nВойдите или зарегистрируйтесь, чтобы видеть историю заказов."}\n\nЭто заглушка — реальная оплата не подключена.`
             );
           }}
           className="mt-3 w-full border-2 border-[#FF4D00] bg-[#FF4D00] py-3 font-mono text-sm font-bold uppercase text-white shadow-[3px_3px_0px_#00E5FF] transition-all hover:shadow-[1px_1px_0px_#00E5FF] hover:translate-x-[2px] hover:translate-y-[2px]"

@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getCart } from "@/lib/store";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function Header() {
+  const { user, logout } = useAuth();
   const [cartCount, setCartCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -33,7 +35,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-5 md:flex">
           <Link
             href="/"
             className="font-mono text-sm font-bold uppercase tracking-wide text-[#1A1A1A] transition-colors hover:text-[#FF4D00]"
@@ -52,12 +54,14 @@ export default function Header() {
           >
             Конструктор
           </Link>
-          <Link
-            href="/admin"
-            className="font-mono text-sm font-bold uppercase tracking-wide text-[#1A1A1A] transition-colors hover:text-[#FF4D00]"
-          >
-            Админка
-          </Link>
+          {user && (user.role === "admin" || user.role === "moderator") && (
+            <Link
+              href="/admin"
+              className="font-mono text-sm font-bold uppercase tracking-wide text-[#1A1A1A] transition-colors hover:text-[#FF4D00]"
+            >
+              Админка
+            </Link>
+          )}
           <Link
             href="/cart"
             className="relative border-2 border-black/80 bg-[#1A1A1A] px-4 py-2 font-mono text-sm font-bold uppercase text-white shadow-[4px_4px_0px_#FF4D00] transition-all hover:shadow-[2px_2px_0px_#FF4D00] hover:translate-x-[2px] hover:translate-y-[2px]"
@@ -69,6 +73,31 @@ export default function Header() {
               </span>
             )}
           </Link>
+
+          {/* Auth */}
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/profile"
+                className="border-2 border-black/80 bg-white px-3 py-2 font-mono text-xs font-bold uppercase transition-all hover:bg-[#F4F1EA]"
+              >
+                {user.displayName || user.login}
+              </Link>
+              <button
+                onClick={logout}
+                className="font-mono text-xs font-bold uppercase text-gray-500 transition-colors hover:text-[#FF4D00]"
+              >
+                Выйти
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/auth"
+              className="border-2 border-[#FF4D00] bg-white px-3 py-2 font-mono text-xs font-bold uppercase text-[#FF4D00] transition-all hover:bg-[#FF4D00] hover:text-white"
+            >
+              Войти
+            </Link>
+          )}
         </nav>
 
         {/* Mobile hamburger */}
@@ -113,13 +142,15 @@ export default function Header() {
           >
             Конструктор
           </Link>
-          <Link
-            href="/admin"
-            onClick={() => setMenuOpen(false)}
-            className="font-mono text-sm font-bold uppercase tracking-wide py-2"
-          >
-            Админка
-          </Link>
+          {user && (user.role === "admin" || user.role === "moderator") && (
+            <Link
+              href="/admin"
+              onClick={() => setMenuOpen(false)}
+              className="font-mono text-sm font-bold uppercase tracking-wide py-2"
+            >
+              Админка
+            </Link>
+          )}
           <Link
             href="/cart"
             onClick={() => setMenuOpen(false)}
@@ -127,6 +158,31 @@ export default function Header() {
           >
             Корзина {cartCount > 0 && `(${cartCount})`}
           </Link>
+          {user ? (
+            <>
+              <Link
+                href="/profile"
+                onClick={() => setMenuOpen(false)}
+                className="font-mono text-sm font-bold uppercase tracking-wide py-2 text-[#00E5FF]"
+              >
+                {user.displayName || user.login}
+              </Link>
+              <button
+                onClick={() => { logout(); setMenuOpen(false); }}
+                className="text-left font-mono text-sm font-bold uppercase tracking-wide py-2 text-gray-500"
+              >
+                Выйти
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/auth"
+              onClick={() => setMenuOpen(false)}
+              className="font-mono text-sm font-bold uppercase tracking-wide py-2 text-[#FF4D00]"
+            >
+              Войти / Регистрация
+            </Link>
+          )}
         </nav>
       )}
     </header>
