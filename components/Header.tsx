@@ -47,6 +47,12 @@ export default function Header() {
             Каталог
           </Link>
           <Link
+            href="/designer"
+            className="font-mono text-sm font-bold uppercase tracking-wide text-[#FF4D00] transition-colors hover:text-[#00E5FF]"
+          >
+            Конструктор
+          </Link>
+          <Link
             href="/admin"
             className="font-mono text-sm font-bold uppercase tracking-wide text-[#1A1A1A] transition-colors hover:text-[#FF4D00]"
           >
@@ -99,6 +105,13 @@ export default function Header() {
             className="font-mono text-sm font-bold uppercase tracking-wide py-2"
           >
             Каталог
+          </Link>
+          <Link
+            href="/designer"
+            onClick={() => setMenuOpen(false)}
+            className="font-mono text-sm font-bold uppercase tracking-wide py-2 text-[#FF4D00]"
+          >
+            Конструктор
           </Link>
           <Link
             href="/admin"
