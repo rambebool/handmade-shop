@@ -8,6 +8,10 @@ import mockProductsRaw from "@/lib/mock-products.json";
 
 const mockProductsTyped = mockProductsRaw as Product[];
 const PAGE_SIZE = 8;
+const SERVER_SNAPSHOT = mockProductsTyped;
+
+let cachedSnapshot: Product[] = SERVER_SNAPSHOT;
+let cachedKey = "";
 
 function subscribe(cb: () => void) {
   window.addEventListener("storage", cb);
@@ -15,11 +19,17 @@ function subscribe(cb: () => void) {
 }
 
 function getSnapshot(): Product[] {
-  return getAllProducts(mockProductsTyped);
+  const fresh = getAllProducts(mockProductsTyped);
+  const key = JSON.stringify(fresh);
+  if (key !== cachedKey) {
+    cachedKey = key;
+    cachedSnapshot = fresh;
+  }
+  return cachedSnapshot;
 }
 
 function getServerSnapshot(): Product[] {
-  return mockProductsTyped;
+  return SERVER_SNAPSHOT;
 }
 
 export default function CatalogPage() {

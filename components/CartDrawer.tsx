@@ -20,12 +20,23 @@ function subscribe(cb: () => void) {
   };
 }
 
+const SERVER_CART: CartItem[] = [];
+
+let cachedCartSnapshot: CartItem[] = SERVER_CART;
+let cachedCartKey = "";
+
 function getSnapshot(): CartItem[] {
-  return getCart();
+  const fresh = getCart();
+  const key = JSON.stringify(fresh);
+  if (key !== cachedCartKey) {
+    cachedCartKey = key;
+    cachedCartSnapshot = fresh;
+  }
+  return cachedCartSnapshot;
 }
 
 function getServerSnapshot(): CartItem[] {
-  return [];
+  return SERVER_CART;
 }
 
 export default function CartDrawer() {

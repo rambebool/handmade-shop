@@ -7,6 +7,10 @@ import BentoGrid from "@/components/BentoGrid";
 import mockProductsRaw from "@/lib/mock-products.json";
 
 const mockProducts = mockProductsRaw as Product[];
+const SERVER_SNAPSHOT = mockProducts.slice(0, 6);
+
+let cachedSnapshot: Product[] = SERVER_SNAPSHOT;
+let cachedKey = "";
 
 function subscribe(cb: () => void) {
   window.addEventListener("storage", cb);
@@ -14,11 +18,17 @@ function subscribe(cb: () => void) {
 }
 
 function getSnapshot(): Product[] {
-  return getAllProducts(mockProducts).slice(0, 6);
+  const fresh = getAllProducts(mockProducts).slice(0, 6);
+  const key = JSON.stringify(fresh);
+  if (key !== cachedKey) {
+    cachedKey = key;
+    cachedSnapshot = fresh;
+  }
+  return cachedSnapshot;
 }
 
 function getServerSnapshot(): Product[] {
-  return mockProducts.slice(0, 6);
+  return SERVER_SNAPSHOT;
 }
 
 export default function BentoGridHome() {

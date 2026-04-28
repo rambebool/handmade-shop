@@ -37,16 +37,27 @@ function subscribeAdmin(cb: () => void) {
   };
 }
 
-function getAdminSnapshot(): { version: number; products: Product[] } {
-  return { version: adminVersion, products: getAdminProducts() };
+const SERVER_ADMIN: Product[] = [];
+
+let cachedAdminSnapshot: Product[] = SERVER_ADMIN;
+let cachedAdminKey = "";
+
+function getAdminSnapshot(): Product[] {
+  const fresh = getAdminProducts();
+  const key = `${adminVersion}:${JSON.stringify(fresh)}`;
+  if (key !== cachedAdminKey) {
+    cachedAdminKey = key;
+    cachedAdminSnapshot = fresh;
+  }
+  return cachedAdminSnapshot;
 }
 
-function getAdminServerSnapshot(): { version: number; products: Product[] } {
-  return { version: 0, products: [] };
+function getAdminServerSnapshot(): Product[] {
+  return SERVER_ADMIN;
 }
 
 export default function AdminForm() {
-  const { products } = useSyncExternalStore(
+  const products = useSyncExternalStore(
     subscribeAdmin,
     getAdminSnapshot,
     getAdminServerSnapshot
